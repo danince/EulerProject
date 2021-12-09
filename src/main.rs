@@ -102,7 +102,7 @@ use fraction::Fraction;
 
 fn main()
 {
-    euler_156();
+    euler_128();
 }
 
 //fn euler1()
@@ -9249,7 +9249,7 @@ fn euler_128()
                             next_tile.connection[3]=base_tile.number;
                             current_phase=Euler_128_phase_Enum::UpperLeft;
                             Start_tile=next_tile.clone();
-                            print!("added tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
+                            print!("added new ring tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
                             hex_map.push(next_tile);
                         },
                     Euler_128_phase_Enum::UpperLeft=>
@@ -9282,7 +9282,7 @@ fn euler_128()
                                     }
                                     //base_tile = hex_map.get_mut(base_tile.connection[2] as usize).unwrap();
                                    // if
-                                    print!("added tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
+                                    print!("added upper left tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
                                     hex_map.push(next_tile);
                                 }
                             // let mut next_tile:Hex = Hex{number:tile_count,connection:[0,0,0,0,0,0]};
@@ -9326,7 +9326,7 @@ fn euler_128()
                                         }
                                       //  base_tile = hex_map.get_mut(base_tile.connection[2] as usize).unwrap();
                                     }
-                                    print!("added tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
+                                    print!("added left tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
                                     hex_map.push(next_tile);
                                 }
                             current_phase=Euler_128_phase_Enum::LowerLeft;
@@ -9356,7 +9356,7 @@ fn euler_128()
                                             mutable_base_tile.connection[2]=next_tile.number;
                                         }
                                     }
-                                    print!("added tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
+                                    print!("added lower left tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
                                     hex_map.push(next_tile);
                                 }
                             current_phase=Euler_128_phase_Enum::LowerRight;
@@ -9390,7 +9390,7 @@ fn euler_128()
                                             mutable_base_tile.connection[3]=next_tile.number;
                                         }
                                     }
-                                    print!("added tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
+                                    print!("added lower right tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
                                     hex_map.push(next_tile);
                                 }
                             current_phase=Euler_128_phase_Enum::Right;
@@ -9441,7 +9441,8 @@ fn euler_128()
                         },
                     Euler_128_phase_Enum::UpperRight=>
                         {
-                            for g in 0 .. ring
+                            print!("ring={}\n",ring);
+                            for g in 0 .. ring-2
                                 {
                                     let mut next_tile:Hex = Hex{number:tile_count,connection:[0,0,0,0,0,0]};
                                     tile_count+=1;
@@ -9470,7 +9471,7 @@ fn euler_128()
                                     {
                                         next_tile.connection[1]=Start_tile.number;
                                     }
-                                    print!("added right tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
+                                    print!("added upper right tile {} with connections {} {} {} {} {} {}\n",next_tile.number,next_tile.connection[0],next_tile.connection[1],next_tile.connection[2],next_tile.connection[3],next_tile.connection[4],next_tile.connection[5]);
                                     hex_map.push(next_tile);
                                 }
                             current_phase=Euler_128_phase_Enum::UpperRight;
@@ -10667,51 +10668,99 @@ fn euler_155() //Counting Capacitor Circuits
 
 }
 
+
+const LIMIT_VALUE:usize =100_000_000_000 ;
 fn euler_156() //Counting Digits
 {
-    let d =2;
+    let d =9;
+    let mut now = Instant::now();
     let mut total =0;
     let mut equal_total =0;
     let mut minus_1 = 0;
     let mut minus_2 =0;
-    let mut dif = 0;
+    let mut dif = 00;
+    let mut calc_dif =0;
+    let mut neg_calc_dif =0;
+    let mut index_add =0;
     //  1/10,20/100,300/1000,4000/10000,50000/100000,600_000/1_000_000,7_000_000/10_000_000,80_000_000/100_000_000
-    for index in 0 .. 10_000_000_000
+    let mut cache:Vec<usize> =  Vec::new();
+    for index in 0 .. 1_000
     {
         let x = number_to_vec_u64(index);
         let new_value = x.iter().filter(|&n| *n==d).count();
-        let minus_2 = minus_1;
-        let minus_1 = dif;
-        total +=new_value;
-        dif = total as i64 - index as i64;
-        print!("{}\n",total as f64 / index  as f64);
-        if total == index as usize
+        cache.push(new_value);
+    }
+    let mut index =0;
+    while index <  LIMIT_VALUE //00_000
+    {
+        //print!("index ={} {}\n",index,total);
+        let low = index % 1000;
+        let mid = (index/1000) % 1000;
+        let top = (index/1_000_000) % 1000;
+        let very_top = (index/1_000_000_000) % 1000;
+        //print!("top={} mid ={} low ={}\n",top,mid,low);
+        if total  > index
         {
-            equal_total+=total;
-            print!("EQUAL {} {} {} {}\n", index, new_value, total,equal_total);
+            calc_dif =0;
+            neg_calc_dif = total - index;
         }
-        // else if minus_2/10000 < minus_1/10000 && dif/10000 < minus_1/10000
-        // {
-        //     print!("CAP {} {} {}\n", index,dif, total);
-        // }
-        // else if minus_2/10000 > minus_1/10000 && dif/10000 > minus_1/10000
-        // {
-        //     print!("BOTTOM {} {} {}\n", index, dif, total);
-        // }
-        else if minus_1 > 0 && dif < 0
+        else //index > total
         {
-            print!("Crossover {} {} {}\n", index, dif, total);
+            neg_calc_dif =0;
+            calc_dif = index - total ;
         }
-        else if minus_1 < 0 && dif > 0
+        //print!("count={} index={} diff={}\n",total,index,calc_dif);
+        if(calc_dif > cache[very_top] * 1000 + cache[top] * 1000 +  cache[mid] * 1000 + 300) && (LIMIT_VALUE - index > 2000)  && index % 1000 == 0
         {
-            print!("Crossover {} {} {}\n", index, dif, total);
+            //print!("count={} index={} diff={}\n",total,index,calc_dif);
+            //print!("top={} mid ={} low ={}\n",top,mid,low);
+            //print!("dif change = {}\n",cache[top] * 1000 +  cache[mid] * 1000 + 300);
+            total += cache[very_top] * 1000 + cache[top] * 1000 +  cache[mid] * 1000 + 300;
+            index+=1000;
         }
-        else if dif!= minus_1
+        else if(neg_calc_dif >  cache[very_top] * 1000 + cache[top] * 1000 +  cache[mid] * 1000 + 700) && (LIMIT_VALUE - index > 2000)  && index % 1000 == 0
         {
-           // print!("Diff {}\n", dif);
+            total += cache[very_top] * 1000 + cache[top] * 1000 +  cache[mid] * 1000 + 300;
+            index+=1000;
+        }
+        else
+        {
+
+            let x = number_to_vec_u64(index as u64);
+            let new_value = x.iter().filter(|&n| *n == d).count();
+            let minus_2 = minus_1;
+            let minus_1 = dif;
+            total += new_value;
+            //index+=1;
+
+            //print!("{}\n",total as f64 / index  as f64);
+            if total == index as usize
+            {
+                equal_total += total;
+                print!("EQUAL {} {} {} {}\n", index, new_value, total, equal_total);
+            }
+            // else if minus_2/10000 < minus_1/10000 && dif/10000 < minus_1/10000
+            // {
+            //     print!("CAP {} {} {}\n", index,dif, total);
+            // }
+            // else if minus_2/10000 > minus_1/10000 && dif/10000 > minus_1/10000
+            // {
+            //     print!("BOTTOM {} {} {}\n", index, dif, total);
+            // }
+            else if minus_1 > 0 && dif < 0
+            {
+                print!("Crossover {} {} {}\n", index, dif, total);
+            } else if minus_1 < 0 && dif > 0
+            {
+                print!("Crossover {} {} {}\n", index, dif, total);
+            } else if dif != minus_1
+            {
+                // print!("Diff {}\n", dif);
+            }
+            index+=1;
         }
     }
-    print!("Total Digits={}",total);
+    print!("Total Digits={} {} in {}",equal_total,total,now.elapsed().as_secs());
 
 
 }
