@@ -102,7 +102,7 @@ use fraction::Fraction;
 
 fn main()
 {
-    euler_128();
+    euler_150();
 }
 
 //fn euler1()
@@ -10654,6 +10654,93 @@ fn cap_calculator(current_cap:Fraction, caps_left:usize) -> Vec<Fraction>
     print!("return vector of size {}\n",new_vec.len());
     new_vec
 }
+
+const EULER_150_NUMBER_OF_LINES:usize = 6;
+const EULER_150_PYRAMID: &'static str =
+"15
+-14 -7
+20 -13 -5
+-3  8 23 -26
+ 1 -4 -5 -18 5
+-16 31 2 9 28 3";
+fn euler_150() //Searching a triangular array for a sub-triangle having minimum-sum
+{
+    let array_size =1000;
+    let mut test_array:[[i32; EULER_150_NUMBER_OF_LINES]; EULER_150_NUMBER_OF_LINES] = [[0; EULER_150_NUMBER_OF_LINES]; EULER_150_NUMBER_OF_LINES];
+    //let mut work_array:[[i32; 1000]; 1000] = [[0; 1000]; 1000];
+    let mut work_vector:Vec<i32> = Vec::new();
+    let mut work_array:Vec<Vec<i32>> = Vec::new();
+    let mut current_position = 0;
+    let mut current_line_number = 0;
+    let  iter = EULER_150_PYRAMID.split_whitespace();
+    let mut lowest =0;
+    let mut t = 0;
+    for k in 1 ..= 500500
+    {
+        t = (615949 * t + 797807) % 2_i64.pow(20);
+        let sk = t - 2_i64.pow(19);
+        work_vector.push(sk as i32 );
+    }
+    print!("s1={} s2 ={} s3={}\n",work_vector[0],work_vector[1],work_vector[2]);
+    // for f in iter
+    // {
+    //
+    //     println!("number = {}", f);
+    //     work_array[current_position][current_line_number]=f.parse::<i32>().unwrap();
+    //     current_position+=1;
+    //     if current_position>current_line_number
+    //     {
+    //         current_position = 0;
+    //         current_line_number +=1;
+    //     }
+    // }
+    let mut count = 0;
+    for index1 in 0 .. array_size
+    {
+        for index2 in 0 .. array_size
+        {
+            work_array[index2][index1]=work_vector[count];
+            count+=1;
+            print!("{} ",work_array[index2][index1]);
+            if index2 >= index1 {break;}
+        }
+        print!("\n");
+    }
+    for start_row in 0 .. array_size
+    {
+        for end_row in start_row  .. array_size
+        {
+            for start_column in 0 ..=start_row
+            {
+                //for end_column in start_column ..=start_row
+                let end_column = start_column+ (end_row - start_row);
+                {
+                    let mut sum = 0;
+                    for x in start_row ..=end_row
+                    {
+                        let mut end_column =  start_column+x;
+                        if end_column < array_size
+                        {
+                            for y in start_column..start_column + x
+                            {
+                                print!("CN={} {} {} ", x, y, work_array[y][x]);
+                                sum += work_array[y][x];
+                            }
+                        }
+                    }
+                    if sum < lowest {lowest =sum}
+                    print!(" start row={} end row={} start collum={} total={} lowest ={}\n",start_row,end_row,start_column,sum,lowest);
+                }
+
+            }
+
+        }
+    }
+
+
+}
+
+
 fn euler_155() //Counting Capacitor Circuits
 {
     //let xfraction = CAP_SIZE as Fraction; //Fraction::new(CAP_SIZE,1);
