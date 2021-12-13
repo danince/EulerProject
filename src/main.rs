@@ -102,7 +102,7 @@ use fraction::Fraction;
 
 fn main()
 {
-    euler_150();
+    euler_158();
 }
 
 //fn euler1()
@@ -10655,7 +10655,7 @@ fn cap_calculator(current_cap:Fraction, caps_left:usize) -> Vec<Fraction>
     new_vec
 }
 
-const EULER_150_NUMBER_OF_LINES:usize = 6;
+const EULER_150_NUMBER_OF_LINES:usize = 1000;
 const EULER_150_PYRAMID: &'static str =
 "15
 -14 -7
@@ -10666,10 +10666,11 @@ const EULER_150_PYRAMID: &'static str =
 fn euler_150() //Searching a triangular array for a sub-triangle having minimum-sum
 {
     let array_size =1000;
-    let mut test_array:[[i32; EULER_150_NUMBER_OF_LINES]; EULER_150_NUMBER_OF_LINES] = [[0; EULER_150_NUMBER_OF_LINES]; EULER_150_NUMBER_OF_LINES];
+    //let mut test_array:[[i32; EULER_150_NUMBER_OF_LINES]; EULER_150_NUMBER_OF_LINES] = [[0; EULER_150_NUMBER_OF_LINES]; EULER_150_NUMBER_OF_LINES];
     //let mut work_array:[[i32; 1000]; 1000] = [[0; 1000]; 1000];
     let mut work_vector:Vec<i32> = Vec::new();
     let mut work_array:Vec<Vec<i32>> = Vec::new();
+    let mut work_array = vec![vec![0; array_size]; array_size];
     let mut current_position = 0;
     let mut current_line_number = 0;
     let  iter = EULER_150_PYRAMID.split_whitespace();
@@ -10681,6 +10682,7 @@ fn euler_150() //Searching a triangular array for a sub-triangle having minimum-
         let sk = t - 2_i64.pow(19);
         work_vector.push(sk as i32 );
     }
+
     print!("s1={} s2 ={} s3={}\n",work_vector[0],work_vector[1],work_vector[2]);
     // for f in iter
     // {
@@ -10708,6 +10710,7 @@ fn euler_150() //Searching a triangular array for a sub-triangle having minimum-
     }
     for start_row in 0 .. array_size
     {
+        print!("row {}\n", start_row);
         for end_row in start_row  .. array_size
         {
             for start_column in 0 ..=start_row
@@ -10715,21 +10718,26 @@ fn euler_150() //Searching a triangular array for a sub-triangle having minimum-
                 //for end_column in start_column ..=start_row
                 let end_column = start_column+ (end_row - start_row);
                 {
-                    let mut sum = 0;
-                    for x in start_row ..=end_row
+                    //let mut end_column = start_column + (end_row-);
+                    if end_column < array_size
                     {
-                        let mut end_column =  start_column+x;
-                        if end_column < array_size
+                        let mut sum = 0;
+                        //print!("start row ={} endrow={} start col={} end col ={}\n", start_row, end_row, start_column, end_column);
+                        for x in start_row..=end_row
                         {
-                            for y in start_column..start_column + x
+                            for y in start_column..=start_column + (x-start_row)
                             {
-                                print!("CN={} {} {} ", x, y, work_array[y][x]);
+                                //print!("CN={} {} {}\n ", x, y, work_array[y][x]);
                                 sum += work_array[y][x];
                             }
                         }
+                        if sum < lowest
+                        {
+                            lowest = sum;
+                            print!("start row={} end row={} start collum={} total={} lowest ={}\n", start_row, end_row, start_column, sum, lowest);
+                        }
+                        //print!("row {} {}\n", start_row, sum);
                     }
-                    if sum < lowest {lowest =sum}
-                    print!(" start row={} end row={} start collum={} total={} lowest ={}\n",start_row,end_row,start_column,sum,lowest);
                 }
 
             }
@@ -10849,5 +10857,65 @@ fn euler_156() //Counting Digits
     }
     print!("Total Digits={} {} in {}",equal_total,total,now.elapsed().as_secs());
 
+
+}
+const EULER_158_MAX_CHARS:usize = 3;
+fn calc_less_than(calc_value:u32,excluded_value:u32,location:u32) -> u32
+{
+    let mut possibilities = 0;
+    if location+1 == EULER_158_MAX_CHARS as u32
+    {
+        if excluded_value < calc_value
+        {
+            possibilities =   calc_value -2;
+        }
+        else
+        {
+        possibilities = calc_value - 1;
+        }
+    }
+    else
+    {
+        for new_calc_value in 1 .. calc_value
+        {
+            if new_calc_value != excluded_value
+            {
+                possibilities += calc_less_than(new_calc_value, excluded_value, location + 1);
+            }
+        }
+    }
+    return possibilities;
+}
+
+
+fn euler_158()//Exploring strings for which only one character comes lexicographically after its neighbour to the left
+{
+    let mut less_than_array:[u32;26] = [0;26];
+    let mut total:u32 = 0;
+    for index in 0 .. 26
+    {
+            total +=index +1;
+            less_than_array[index as usize] = total;
+             print!("total={}\n",total);
+    }
+    let mut possabilities = 0;
+    for cusp_number in 1 ..=EULER_158_MAX_CHARS
+    {
+        for cusp_value in 1 ..=25
+        {
+            if cusp_number==EULER_158_MAX_CHARS
+            {
+                possabilities+=26-cusp_value;
+
+            }
+            else
+            {
+                for cusp_follower in cusp_value + 1..26
+                {
+                    possabilities += calc_less_than(cusp_follower, cusp_value, cusp_number as u32);
+                }
+            }
+        }
+    }
 
 }
