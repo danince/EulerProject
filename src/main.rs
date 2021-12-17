@@ -10859,20 +10859,67 @@ fn euler_156() //Counting Digits
 
 
 }
-const EULER_158_MAX_CHARS:usize = 3;
+const EULER_158_MAX_CHARS:usize = 2;
+
+fn new_less_than(calc_value:u32,excluded_value:Vec<u32>,cusp_loc:u32,location:u32) -> u32
+{
+    let mut possibilites = 0;
+   if location!=cusp_loc
+   {
+       if location == EULER_158_MAX_CHARS as u32
+       {
+           possibilites = 1;
+       }
+       else
+       {
+           for index in 1 ..calc_value  //index must be less than calc value
+           {
+               if !excluded_value.iter().any(|&i| i==index)
+               {
+                   let mut new_excluded_values = excluded_value.clone();
+                   new_excluded_values.push(calc_value);
+                   possibilites += new_less_than(index, new_excluded_values, cusp_loc, location + 1)
+               }
+           }
+
+       }
+   }
+    else
+    {
+        if location == EULER_158_MAX_CHARS as u32
+        {
+            possibilites = 1;
+        }
+        else
+        {
+            for index in calc_value+1 ..=26  //index must be less than calc value
+            {
+                if !excluded_value.iter().any(|&i| i==index)
+                {
+                    let mut new_ecluded_values = excluded_value.clone();
+                    new_ecluded_values.push(calc_value);
+                    possibilites += new_less_than(index, new_ecluded_values, cusp_loc, location + 1)
+                }
+            }
+
+        }
+    }
+    return possibilites;
+}
 fn calc_less_than(calc_value:u32,excluded_value:u32,location:u32) -> u32
 {
     let mut possibilities = 0;
     if location+1 == EULER_158_MAX_CHARS as u32
     {
-        if excluded_value < calc_value
-        {
-            possibilities =   calc_value -2;
-        }
-        else
-        {
-        possibilities = calc_value - 1;
-        }
+        // if excluded_value < calc_value
+        // {
+        //     possibilities =   calc_value -2;
+        // }
+        // else
+        // {
+        // possibilities = calc_value - 1;
+        // }
+        possibilities = 1 ;
     }
     else
     {
@@ -10884,9 +10931,39 @@ fn calc_less_than(calc_value:u32,excluded_value:u32,location:u32) -> u32
             }
         }
     }
+    print!("Running calc_less_than with excluded_value={}, calc_value={} and location={} to get {}\n ",excluded_value,calc_value,location,possibilities);
     return possibilities;
 }
 
+fn calc_greater_than(excluded_value:u32,calc_value:u32,location:u32) -> u32
+{
+    let mut possibilities = 0;
+    if location-1 == 1 as u32
+    {
+        if excluded_value > calc_value
+        {
+            possibilities =   (25 -calc_value) ;
+        }
+        else
+        {
+            possibilities =  (26 -calc_value);
+        }
+    }
+    else
+    {
+        print!("SHOULD NOT BE HERE");
+        for new_calc_value in calc_value ..26
+        {
+            if new_calc_value != excluded_value
+            {
+                possibilities += calc_greater_than(excluded_value,new_calc_value,  location - 1);
+            }
+        }
+    }
+    print!("Running calc_greater_than with excluded_value={}, calc_value={} and location={} to get {}\n ",excluded_value,calc_value,location,possibilities);
+
+    return possibilities;
+}
 
 fn euler_158()//Exploring strings for which only one character comes lexicographically after its neighbour to the left
 {
@@ -10898,24 +10975,52 @@ fn euler_158()//Exploring strings for which only one character comes lexicograph
             less_than_array[index as usize] = total;
              print!("total={}\n",total);
     }
-    let mut possabilities = 0;
-    for cusp_number in 1 ..=EULER_158_MAX_CHARS
+    let mut testval=0;
+    for f in 1 ..=26
     {
-        for cusp_value in 1 ..=25
+        for g in 1 ..=26
         {
-            if cusp_number==EULER_158_MAX_CHARS
+            for h in 1 ..=26
             {
-                possabilities+=26-cusp_value;
-
-            }
-            else
-            {
-                for cusp_follower in cusp_value + 1..26
+                if g > f && h > g
                 {
-                    possabilities += calc_less_than(cusp_follower, cusp_value, cusp_number as u32);
+                    testval += 1;
                 }
             }
         }
+    }
+
+    print!("Testval={}\n",testval);
+    let mut excluded_vector:Vec<u32> = Vec::new();
+
+    let mut possabilities = 0;
+    for cusp_number in 1 ..EULER_158_MAX_CHARS  //position of the key number to be followed by a higher number
+    {
+        possabilities=new_less_than(0,excluded_vector.clone(),cusp_number as u32,1);
+        /*for cusp_value in 1 ..=25              // for each possible value
+        {
+            if cusp_number==EULER_158_MAX_CHARS     //if the second to last number in the string
+            {
+                //possabilities+=26-cusp_value;       //add all higher numbers as post cusp can be any higher number
+
+            }
+            else   // if not second to last in string
+            {
+                for cusp_follower in cusp_value + 1..=26  //the next number can be any number higher
+                {   // recursivle calculate the rest which all mus be lower than cusp_follower and not be cusp_value
+                    possabilities += calc_less_than(cusp_follower, cusp_value, cusp_number as u32);
+                    if cusp_number!=1   //if not the first in the string
+                    {
+                        print!("SHOULD NOT BE HERE");
+                        possabilities += calc_greater_than(cusp_follower, cusp_value, cusp_number as u32);
+                    }
+                }
+            }
+
+
+
+        }*/
+        print!("Possabilities={} cusp number={}\n",possabilities,cusp_number);
     }
 
 }
