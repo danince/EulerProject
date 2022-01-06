@@ -10749,6 +10749,83 @@ fn euler_150() //Searching a triangular array for a sub-triangle having minimum-
 }
 
 
+fn euler_151() //Paper sheets of standard sizes: an expected-value problem
+{
+    let mut Sheets:Vec<u64> = vec![0; 5];
+    let mut batches:u64 =0;
+    let mut single_sheet_batches:u64=0;
+    let mut count:u64 =0;
+    loop
+    {
+        count+=1;
+        //batches+=1;
+        Sheets[0]=1;  //first large sheet
+        for batch in 0 .. 15  // last batch doesn't count
+        {
+
+            if batch == 0  //first batch
+            {
+                Sheets[0] = 0;  //a1
+                Sheets[1] = 1;  //a2
+                Sheets[2] = 1;  //a3
+                Sheets[3] = 1;  //a4
+                Sheets[4] = 1;  //a5
+            }
+            else
+            {
+                batches+=1;
+                let total_sheets:u64  = Sheets.iter().sum();
+                if total_sheets == 1 { single_sheet_batches+=1}
+                let mut pick = 1;
+                if total_sheets !=0
+                {
+                    pick = rand::thread_rng().gen_range(1, total_sheets + 1);
+                }
+                //print!("total sheets ={} pick={}\n",total_sheets,pick);
+                let mut remaining_sheets=total_sheets;
+                for sheet in 0 ..Sheets.len()
+                {
+                    if pick <= Sheets[sheet as usize]
+                    {
+                        if Sheets[sheet] == 0 {println!("ERROR");}
+                        // if sheet == 4
+                        // {
+                        //     Sheets[sheet as usize]-=1;
+                        // }
+                        let mut picked_sheet= sheet;
+                        //println!("picked sheet={}",picked_sheet);
+                        //println!("Before pick {:?}",Sheets);
+
+                        while picked_sheet!=4
+                        {
+                            Sheets[picked_sheet as usize]-=1;
+                            Sheets[picked_sheet as usize +1]+=2;
+                            picked_sheet+=1;
+                        }
+                        Sheets[4]-=1;
+                        //println!("After pick {:?}",Sheets);
+                        break;
+
+                    }
+                    else
+                    {
+                        pick-=Sheets[sheet as usize];
+                    }
+                }
+            }
+        }
+        if count%1000000 == 0
+        {
+            print!("Ratio = {} {} {}\n", single_sheet_batches, batches, single_sheet_batches as f64 / batches as f64);
+        }
+    }
+}
+
+
+fn euler_152()  //Writing 1/2 as a sum of inverse squares
+{
+    
+}
 fn euler_155() //Counting Capacitor Circuits
 {
     //let xfraction = CAP_SIZE as Fraction; //Fraction::new(CAP_SIZE,1);
@@ -10859,14 +10936,14 @@ fn euler_156() //Counting Digits
 
 
 }
-const EULER_158_MAX_CHARS:usize = 2;
+const EULER_158_MAX_CHARS:usize = 11;
 
-fn new_less_than(calc_value:u32,excluded_value:Vec<u32>,cusp_loc:u32,location:u32) -> u32
+fn new_less_than(calc_value:u64,excluded_value:Vec<u64>,cusp_loc:u64,location:u64) -> u64
 {
     let mut possibilites = 0;
    if location!=cusp_loc
    {
-       if location == EULER_158_MAX_CHARS as u32
+       if location == EULER_158_MAX_CHARS as u64
        {
            possibilites = 1;
        }
@@ -10886,7 +10963,7 @@ fn new_less_than(calc_value:u32,excluded_value:Vec<u32>,cusp_loc:u32,location:u3
    }
     else
     {
-        if location == EULER_158_MAX_CHARS as u32
+        if location == EULER_158_MAX_CHARS as u64
         {
             possibilites = 1;
         }
@@ -10935,10 +11012,10 @@ fn calc_less_than(calc_value:u32,excluded_value:u32,location:u32) -> u32
     return possibilities;
 }
 
-fn calc_greater_than(excluded_value:u32,calc_value:u32,location:u32) -> u32
+fn calc_greater_than(excluded_value:u64,calc_value:u64,location:u64) -> u64
 {
     let mut possibilities = 0;
-    if location-1 == 1 as u32
+    if location-1 == 1 as u64
     {
         if excluded_value > calc_value
         {
@@ -10967,8 +11044,8 @@ fn calc_greater_than(excluded_value:u32,calc_value:u32,location:u32) -> u32
 
 fn euler_158()//Exploring strings for which only one character comes lexicographically after its neighbour to the left
 {
-    let mut less_than_array:[u32;26] = [0;26];
-    let mut total:u32 = 0;
+    let mut less_than_array:[u64;26] = [0;26];
+    let mut total:u64 = 0;
     for index in 0 .. 26
     {
             total +=index +1;
@@ -10991,12 +11068,12 @@ fn euler_158()//Exploring strings for which only one character comes lexicograph
     }
 
     print!("Testval={}\n",testval);
-    let mut excluded_vector:Vec<u32> = Vec::new();
+    let mut excluded_vector:Vec<u64> = Vec::new();
 
     let mut possabilities = 0;
     for cusp_number in 1 ..EULER_158_MAX_CHARS  //position of the key number to be followed by a higher number
     {
-        possabilities=new_less_than(0,excluded_vector.clone(),cusp_number as u32,1);
+        possabilities+=new_less_than(27,excluded_vector.clone(),cusp_number as u64,0);
         /*for cusp_value in 1 ..=25              // for each possible value
         {
             if cusp_number==EULER_158_MAX_CHARS     //if the second to last number in the string
