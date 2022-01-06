@@ -10824,7 +10824,24 @@ fn euler_151() //Paper sheets of standard sizes: an expected-value problem
 
 fn euler_152()  //Writing 1/2 as a sum of inverse squares
 {
-    
+    let mut squares : Vec<BigUint> = Vec.new();
+    for index in 2 ..= 45
+    {
+        let big_index = index.to_biguint().unwrap();
+        squares.push(big_index.clone() * big_index);
+    }
+    let mut lcm:BigUint=One::one();
+    for index in 2 ..=45
+    {
+        let big_index = index.to_biguint().unwrap();
+        lcm=lcm.lcm(&big_index);
+    }
+    println!("LCM={}",lcm);
+    let target=lcm/2;
+
+    let mut modified_values: Vec<BigUint> = Vec.new();
+    for
+
 }
 fn euler_155() //Counting Capacitor Circuits
 {
