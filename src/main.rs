@@ -26,6 +26,7 @@ use num_bigint::BigUint;
 use num_bigint::{ToBigUint};
 use num_traits::{Zero, One};
 use num_bigint::ToBigInt;
+//use num_traits::lcm;
 use permutohedron::heap_recursive;
 //use num_biguint::biguint::IntDigits;
 //use std::mem::replace;
@@ -34,6 +35,7 @@ use num_traits::pow;
 //use std::num;
 //use std::env;
 use num_bigint::BigInt;
+use num::Integer;
 use std::fs;
 use std::fs::File;
 use std::io::BufReader;
@@ -94,6 +96,7 @@ use rulinalg::matrix::Matrix;
 use rulinalg::vector::Vector;
 use rand::Rng;
 use fraction::Fraction;
+use std::io::{self, Write};
 
 //use ndarray::arr2;
 //use num::BigUint;
@@ -102,7 +105,7 @@ use fraction::Fraction;
 
 fn main()
 {
-    euler_158();
+    euler_152();
 }
 
 //fn euler1()
@@ -10410,7 +10413,7 @@ fn euler_148()  //Exploring Pascal's triangle
         let mut start_of_block = (48 * effective_block ) + (effective_block/7) * (7-(current_block%7)) + (effective_block/49) * ((7 *(current_block%7))-(current_block%7));
         if current_block % 7 ==0 { start_of_block -= (current_block -7);  }
         let row_in_block = (effective_row / (7 ) % 7);
-        let start_of_row = start_of_block+row_in_block * (7-current_block) + (7-1) * row_in_block *(effective_block/7); ////  - row_in_block * (effective_block-1)/7 ;
+        let start_of_row = start_of_block+row_in_block * (7-current_block) + (7-1) * row_in_block *(effective_block/7); //  - row_in_block * (effective_block-1)/7 ;
         let current_value = start_of_row-(row_in_block  * (effective_row % 7)+ (row_in_block * effective_block * (effective_row % 7) ) + ((effective_row % 7)*(current_block -1))) ;
         let starter = (seven_pow_12-1) * seven_12
                         + (seven_pow_11-1) * seven_11
@@ -10821,10 +10824,32 @@ fn euler_151() //Paper sheets of standard sizes: an expected-value problem
     }
 }
 
+fn euler_152_tree_walk(position:usize,current_value:BigUint,target:&BigUint,remaining_values:&Vec<BigUint>,modified_values:&Vec<BigUint>)
+{
+    //println!("Position={} Current value={} Target Value={} Remaining {}",position,current_value,target,remaining_values[0]);
+    if position < 15 {print!("{},",position); io::stdout().flush().unwrap();}
+    if current_value > *target {   /* println!("BAILED OVER Position={} Current value={} Target Value={}",position,current_value,target);*/ return;}  //Over the limit
+    if remaining_values[0] < target-current_value.clone() {    /*println!("BAILED UNDER Position={} Current value={} Target Value={}",position,current_value,target);*/ return;}  //not enough values left to make it to 1/2
+
+    if current_value == *target
+    {
+        println!("FOUND ONE");
+        return;
+    }
+
+    //let mut new_current_vector: Vec<BigUint> = Vec::new();
+    //new_current_vector.push(current_value.clone());
+    //let mut new_remaining_values:Vec<BigUint> = remaining_values.clone();
+    //new_remaining_values.remove(0);
+    if position+1 ==remaining_values.len() {return;}
+    euler_152_tree_walk(position+1,current_value.clone()+modified_values[position].clone(),&target,&remaining_values,modified_values);
+    euler_152_tree_walk(position+1,current_value,&target,&remaining_values,modified_values);
+
+}
 
 fn euler_152()  //Writing 1/2 as a sum of inverse squares
 {
-    let mut squares : Vec<BigUint> = Vec.new();
+    let mut squares : Vec<BigUint> = Vec::new();
     for index in 2 ..= 45
     {
         let big_index = index.to_biguint().unwrap();
@@ -10837,10 +10862,33 @@ fn euler_152()  //Writing 1/2 as a sum of inverse squares
         lcm=lcm.lcm(&big_index);
     }
     println!("LCM={}",lcm);
-    let target=lcm/2;
+    let target=lcm.clone()/2.to_biguint().unwrap();
 
-    let mut modified_values: Vec<BigUint> = Vec.new();
-    for
+    let mut modified_values: Vec<BigUint> = Vec::new();
+    for square_value in squares
+    {
+        let new_value = lcm.clone() / square_value.clone();
+        modified_values.push(new_value.clone());
+        println!("modified_values {} {}",square_value,new_value);
+    }
+    let mut remainding_total_reverse:Vec<BigUint> = Vec::new();
+    let mut sum:BigUint = Zero::zero();
+    modified_values.reverse();
+    for value in modified_values.clone()
+    {
+        sum+=value;
+        remainding_total_reverse.push(sum.clone());
+    }
+    modified_values.reverse();
+    remainding_total_reverse.reverse();
+    let mut remainding_total=remainding_total_reverse.clone();
+    println!("TARGET={}",target);
+    for value in remainding_total.clone()
+    {
+        println!("remainding_total {}",value);
+    }
+    let mut current_vector: Vec<BigUint> = Vec::new();
+    euler_152_tree_walk(0,Zero::zero(),&target,&remainding_total,&modified_values)
 
 }
 fn euler_155() //Counting Capacitor Circuits
@@ -10953,7 +11001,7 @@ fn euler_156() //Counting Digits
 
 
 }
-const EULER_158_MAX_CHARS:usize = 11;
+const EULER_158_MAX_CHARS:usize = 26;
 
 fn new_less_than(calc_value:u64,excluded_value:Vec<u64>,cusp_loc:u64,location:u64) -> u64
 {
@@ -11088,7 +11136,7 @@ fn euler_158()//Exploring strings for which only one character comes lexicograph
     let mut excluded_vector:Vec<u64> = Vec::new();
 
     let mut possabilities = 0;
-    for cusp_number in 1 ..EULER_158_MAX_CHARS  //position of the key number to be followed by a higher number
+    for cusp_number in 11 ..EULER_158_MAX_CHARS  //position of the key number to be followed by a higher number
     {
         possabilities+=new_less_than(27,excluded_vector.clone(),cusp_number as u64,0);
         /*for cusp_value in 1 ..=25              // for each possible value
